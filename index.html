@@ -39,12 +39,12 @@
     h3 { font-size: 1.15rem; margin: 34px 0 4px; }
     h3 small { font-weight: 400; color: var(--muted); font-size: 0.92rem; margin-left: 6px; }
     .group { color: var(--muted); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; margin: 18px 0 8px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
-    .scene { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 12px;
-      overflow: hidden; text-decoration: none; color: inherit; transition: transform .15s, box-shadow .15s; }
-    .scene:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,.10); }
-    .scene img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: #0c0f0d; }
-    .scene .name { display: block; padding: 8px 10px 9px; font-weight: 600; font-size: 0.95rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 18px 14px; }
+    .scene { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: inherit; padding: 6px 0; }
+    .scene img { display: block; width: 100%; max-width: 132px; aspect-ratio: 1; border-radius: 50%;
+      box-shadow: 0 6px 18px rgba(0,0,0,.16); transition: transform .15s, box-shadow .15s; }
+    .scene:hover img { transform: translateY(-3px) scale(1.04); box-shadow: 0 12px 28px rgba(0,0,0,.22), 0 0 0 2px var(--accent); }
+    .scene .name { display: block; margin-top: 10px; font-weight: 600; font-size: 0.95rem; text-align: center; }
     .scene .name::after { content: "Open in viewer →"; display: block; font-weight: 400; font-size: 0.78rem; color: var(--muted); }
     pre { background: #f0f2ef; border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px;
       overflow-x: auto; font-size: 0.85rem; line-height: 1.5; }
@@ -133,11 +133,17 @@
       <a class="scene" href="viewer/?scene=best-t_oslo"><img src="thumbs/t_oslo.webp" alt="Oslo" loading="lazy"><span class="name">Oslo</span></a>
     </div>
 
-    <h3>FullCircle scenes <small>static reconstructions from the <a href="https://theialab.github.io/fullcircle/">FullCircle</a> dataset</small></h3>
+    <h3>FullCircle scenes <small>9 static reconstructions from the <a href="https://theialab.github.io/fullcircle/">FullCircle</a> dataset</small></h3>
     <div class="grid">
+      <a class="scene" href="viewer/?scene=fullcircle-distsort-room1"><img src="thumbs/fullcircle-room1.webp" alt="FullCircle Room 1" loading="lazy"><span class="name">Room 1</span></a>
+      <a class="scene" href="viewer/?scene=fullcircle-distsort-flat1"><img src="thumbs/fullcircle-flat1.webp" alt="FullCircle Flat 1" loading="lazy"><span class="name">Flat 1</span></a>
       <a class="scene" href="viewer/?scene=fullcircle-distsort-flat2"><img src="thumbs/fullcircle-flat2.webp" alt="FullCircle Flat 2" loading="lazy"><span class="name">Flat 2</span></a>
       <a class="scene" href="viewer/?scene=fullcircle-distsort-room2"><img src="thumbs/fullcircle-room2.webp" alt="FullCircle Room 2" loading="lazy"><span class="name">Room 2</span></a>
+      <a class="scene" href="viewer/?scene=fullcircle-distsort-room3"><img src="thumbs/fullcircle-room3.webp" alt="FullCircle Room 3" loading="lazy"><span class="name">Room 3</span></a>
+      <a class="scene" href="viewer/?scene=fullcircle-distsort-lab"><img src="thumbs/fullcircle-lab.webp" alt="FullCircle Lab" loading="lazy"><span class="name">Lab</span></a>
       <a class="scene" href="viewer/?scene=fullcircle-distsort-lounge"><img src="thumbs/fullcircle-lounge.webp" alt="FullCircle Lounge" loading="lazy"><span class="name">Lounge</span></a>
+      <a class="scene" href="viewer/?scene=fullcircle-distsort-persons"><img src="thumbs/fullcircle-persons.webp" alt="FullCircle Persons" loading="lazy"><span class="name">Persons</span></a>
+      <a class="scene" href="viewer/?scene=fullcircle-distsort-dark"><img src="thumbs/fullcircle-dark.webp" alt="FullCircle Dark" loading="lazy"><span class="name">Dark</span></a>
     </div>
   </section>
 
