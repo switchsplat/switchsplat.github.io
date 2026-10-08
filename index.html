@@ -6,6 +6,7 @@
   <title>SwitchSplat: Learning Discrete Object States from Casually Captured Scenes</title>
   <meta name="description" content="SwitchSplat learns the discrete states of interactable objects from casually captured video and renders any combination of them from any viewpoint.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <style>
     :root {
       --bg: #fbfbf9; --fg: #1d2420; --muted: #5d6862; --line: #e3e6e2;
@@ -36,9 +37,8 @@
     h2 { font-size: 1.6rem; margin: 0 0 14px; text-align: center; }
     .abstract { max-width: 860px; margin: 0 auto; text-align: justify; hyphens: auto; }
     .lead { text-align: center; color: var(--muted); max-width: 760px; margin: 0 auto 26px; }
-    h3 { font-size: 1.15rem; margin: 34px 0 4px; }
+    h3 { font-size: 1.15rem; margin: 34px 0 14px; }
     h3 small { font-weight: 400; color: var(--muted); font-size: 0.92rem; margin-left: 6px; }
-    .group { color: var(--muted); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; margin: 18px 0 8px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 18px 14px; }
     .scene { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: inherit; padding: 6px 0; }
     .scene img { display: block; width: 100%; max-width: 132px; aspect-ratio: 1; border-radius: 50%;
@@ -108,27 +108,17 @@
     <p class="lead">Every scene runs live in your browser (WebGPU required). In SwitchSplat scenes, flip each object's state and view any combination from any viewpoint.</p>
 
     <h3>SwitchSplat dataset <small>12 casually captured dual-fisheye scenes</small></h3>
-    <div class="group">Outdoor</div>
     <div class="grid">
       <a class="scene" href="viewer/?scene=best-balcony"><img src="thumbs/balcony.webp" alt="Balcony" loading="lazy"><span class="name">Balcony</span></a>
       <a class="scene" href="viewer/?scene=best-car"><img src="thumbs/car.webp" alt="Car" loading="lazy"><span class="name">Car</span></a>
-    </div>
-    <div class="group">Indoor</div>
-    <div class="grid">
       <a class="scene" href="viewer/?scene=best-kitchen"><img src="thumbs/kitchen.webp" alt="Kitchen 1" loading="lazy"><span class="name">Kitchen 1</span></a>
       <a class="scene" href="viewer/?scene=best-yalda"><img src="thumbs/yalda.webp" alt="Flat 1" loading="lazy"><span class="name">Flat 1</span></a>
       <a class="scene" href="viewer/?scene=best-egor"><img src="thumbs/egor.webp" alt="Flat 2" loading="lazy"><span class="name">Flat 2</span></a>
       <a class="scene" href="viewer/?scene=best-shri"><img src="thumbs/shri.webp" alt="Flat 3" loading="lazy"><span class="name">Flat 3</span></a>
       <a class="scene" href="viewer/?scene=best-chair"><img src="thumbs/chair.webp" alt="Chair" loading="lazy"><span class="name">Chair</span></a>
-    </div>
-    <div class="group">Concurrent indoor</div>
-    <div class="grid">
       <a class="scene" href="viewer/?scene=best-m_kitchen1"><img src="thumbs/m_kitchen1.webp" alt="M Kitchen 1" loading="lazy"><span class="name">M Kitchen 1</span></a>
       <a class="scene" href="viewer/?scene=best-m_kitchen2"><img src="thumbs/m_kitchen2.webp" alt="M Kitchen 2" loading="lazy"><span class="name">M Kitchen 2</span></a>
       <a class="scene" href="viewer/?scene=best-m_kitchen3"><img src="thumbs/m_kitchen3.webp" alt="M Kitchen 3" loading="lazy"><span class="name">M Kitchen 3</span></a>
-    </div>
-    <div class="group">Golden scenes</div>
-    <div class="grid">
       <a class="scene" href="viewer/?scene=best-t_kitchen"><img src="thumbs/t_kitchen.webp" alt="Kitchen 2" loading="lazy"><span class="name">Kitchen 2</span></a>
       <a class="scene" href="viewer/?scene=best-t_oslo"><img src="thumbs/t_oslo.webp" alt="Oslo" loading="lazy"><span class="name">Oslo</span></a>
     </div>
