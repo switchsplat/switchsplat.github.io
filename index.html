@@ -1,12 +1,160 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SwitchSplat</title>
-  </head>
-  <body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SwitchSplat: Learning Discrete Object States from Casually Captured Scenes</title>
+  <meta name="description" content="SwitchSplat learns the discrete states of interactable objects from casually captured video and renders any combination of them from any viewpoint.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    :root {
+      --bg: #fbfbf9; --fg: #1d2420; --muted: #5d6862; --line: #e3e6e2;
+      --accent: #1f6f4a; --accent-fg: #fff; --card: #fff;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg);
+      font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    main { max-width: 1080px; margin: 0 auto; padding: 56px 24px 72px; }
+    header { text-align: center; }
+    h1 { font-size: clamp(2rem, 5vw, 3.1rem); line-height: 1.15; margin: 0 0 6px; letter-spacing: -0.01em; }
+    .subtitle { font-size: clamp(1.1rem, 2.4vw, 1.45rem); color: var(--muted); margin: 0 0 18px; }
+    .venue { display: inline-block; font-weight: 600; color: var(--accent); margin-bottom: 18px; }
+    .authors { font-size: 1.08rem; margin: 0 0 6px; }
+    .authors span { white-space: nowrap; margin: 0 8px; }
+    .affils { color: var(--muted); font-size: 0.95rem; margin: 0 0 4px; }
+    .affils span { white-space: nowrap; margin: 0 8px; }
+    .notes { color: var(--muted); font-size: 0.85rem; margin: 0; }
+    .buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 28px 0 8px; }
+    .button { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border-radius: 999px;
+      background: #262b28; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.98rem; }
+    .button:hover { background: #3a413d; }
+    .button.primary { background: var(--accent); }
+    .button.primary:hover { background: #185a3c; }
+    .button.disabled { background: #d9ddd9; color: #747d78; pointer-events: none; }
+    .button svg { width: 1.1em; height: 1.1em; fill: currentColor; }
+    section { margin-top: 56px; }
+    h2 { font-size: 1.6rem; margin: 0 0 14px; text-align: center; }
+    .abstract { max-width: 860px; margin: 0 auto; text-align: justify; hyphens: auto; }
+    .lead { text-align: center; color: var(--muted); max-width: 760px; margin: 0 auto 26px; }
+    h3 { font-size: 1.15rem; margin: 34px 0 4px; }
+    h3 small { font-weight: 400; color: var(--muted); font-size: 0.92rem; margin-left: 6px; }
+    .group { color: var(--muted); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; margin: 18px 0 8px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+    .scene { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+      overflow: hidden; text-decoration: none; color: inherit; transition: transform .15s, box-shadow .15s; }
+    .scene:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,.10); }
+    .scene img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: #0c0f0d; }
+    .scene .name { display: block; padding: 8px 10px 9px; font-weight: 600; font-size: 0.95rem; }
+    .scene .name::after { content: "Open in viewer →"; display: block; font-weight: 400; font-size: 0.78rem; color: var(--muted); }
+    pre { background: #f0f2ef; border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px;
+      overflow-x: auto; font-size: 0.85rem; line-height: 1.5; }
+    footer { margin-top: 64px; text-align: center; color: var(--muted); font-size: 0.85rem; }
+    footer a { color: inherit; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
     <h1>SwitchSplat</h1>
-    <p>Official website of the SwitchSplat organization.</p>
-  </body>
+    <p class="subtitle">Learning Discrete Object States from Casually Captured Scenes</p>
+    <div class="venue">SIGGRAPH Asia 2026 · Conference Papers</div>
+    <p class="authors">
+      <span>Yizheng Xie<sup>1*</sup></span>
+      <span>Yalda Foroutan<sup>1*</sup></span>
+      <span>George Shramko<sup>1</sup></span>
+      <span>Daniel Rebain<sup>2,3</sup></span>
+      <span>Shrisudhan Govindarajan<sup>1,3†</sup></span>
+      <span>Andrea Tagliasacchi<sup>1,4,3†</sup></span>
+    </p>
+    <p class="affils">
+      <span><sup>1</sup>Simon Fraser University</span>
+      <span><sup>2</sup>University of British Columbia</span>
+      <span><sup>3</sup>Wayve Labs</span>
+      <span><sup>4</sup>University of Toronto</span>
+    </p>
+    <p class="notes"><sup>*</sup>Equal contribution &nbsp; <sup>†</sup>Equal advising</p>
+
+    <div class="buttons">
+      <a class="button primary" href="https://switchsplat.pages.dev/">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.3 6.7 3.7L12 11.7 5.3 8 12 4.3ZM5 9.7l6 3.3v6.6l-6-3.3V9.7Zm8 9.9V13l6-3.3v6.6l-6 3.3Z"/></svg>
+        Interactive Viewer
+      </a>
+      <span class="button disabled">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6V2Zm8 1.5V8h4.5L14 3.5ZM8 12h10v1.5H8V12Zm0 3.5h10V17H8v-1.5Zm0 3.5h7v1.5H8V19Z"/></svg>
+        Paper (coming soon)
+      </span>
+      <span class="button disabled">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.9 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5Z"/></svg>
+        Code (coming soon)
+      </span>
+    </div>
+  </header>
+
+  <section>
+    <h2>Abstract</h2>
+    <p class="abstract">
+      3D Gaussian Splatting has made high-fidelity 3D reconstruction fast and accessible, yet existing representations assume a static world.
+      This assumption breaks down in casual captures, where a user naturally interacts with the environment &ndash; opening doors, toggling switches, or moving objects &ndash; introducing discrete state changes that no current framework can model.
+      Time-conditioned dynamic methods such as 4DGS conflate <em>when</em> a state was observed with <em>what</em> state the scene is in, limiting them to replaying seen sequences rather than composing arbitrary object configurations.
+      We present SwitchSplat, the first 3DGS representation to address this gap via a base+slot decomposition: a shared static base captures the invariant scene, while each slot independently holds the two binary states (on/off) of one interactable object.
+      Because the assignment of Gaussians to slots is fully differentiable, the model discovers the geometry of each state directly from video, without manual annotation.
+      At inference, the user can freely combine slot states and render the resulting scene from any viewpoint.
+      We validate SwitchSplat on a new casual-capture dataset and show that it outperforms static and dynamic baselines in novel-view synthesis quality, while uniquely supporting rendering of state combinations never seen during capture.
+    </p>
+  </section>
+
+  <section>
+    <h2>Explore the scenes</h2>
+    <p class="lead">Every scene runs live in your browser (WebGPU required). In SwitchSplat scenes, flip each object's state and view any combination from any viewpoint.</p>
+
+    <h3>SwitchSplat dataset <small>12 casually captured dual-fisheye scenes</small></h3>
+    <div class="group">Outdoor</div>
+    <div class="grid">
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=best-balcony"><img src="thumbs/balcony.webp" alt="Balcony" loading="lazy"><span class="name">Balcony</span></a>
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=best-car"><img src="thumbs/car.webp" alt="Car" loading="lazy"><span class="name">Car</span></a>
+    </div>
+    <div class="group">Indoor</div>
+    <div class="grid">
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=best-kitchen"><img src="thumbs/kitchen.webp" alt="Kitchen 1" loading="lazy"><span class="name">Kitchen 1</span></a>
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=best-yalda"><img src="thumbs/yalda.webp" alt="Flat 1" loading="lazy"><span class="name">Flat 1</span></a>
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=best-egor"><img src="thumbs/egor.webp" alt="Flat 2" loading="lazy"><span class="name">Flat 2</span></a>
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=best-shri"><img src="thumbs/shri.webp" alt="Flat 3" loading="lazy"><span class="name">Flat 3</span></a>
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=best-chair"><img src="thumbs/chair.webp" alt="Chair" loading="lazy"><span class="name">Chair</span></a>
+    </div>
+    <div class="group">Concurrent indoor</div>
+    <div class="grid">
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=best-m_kitchen1"><img src="thumbs/m_kitchen1.webp" alt="M Kitchen 1" loading="lazy"><span class="name">M Kitchen 1</span></a>
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=best-m_kitchen2"><img src="thumbs/m_kitchen2.webp" alt="M Kitchen 2" loading="lazy"><span class="name">M Kitchen 2</span></a>
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=best-m_kitchen3"><img src="thumbs/m_kitchen3.webp" alt="M Kitchen 3" loading="lazy"><span class="name">M Kitchen 3</span></a>
+    </div>
+    <div class="group">Golden scenes</div>
+    <div class="grid">
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=best-t_kitchen"><img src="thumbs/t_kitchen.webp" alt="Kitchen 2" loading="lazy"><span class="name">Kitchen 2</span></a>
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=best-t_oslo"><img src="thumbs/t_oslo.webp" alt="Oslo" loading="lazy"><span class="name">Oslo</span></a>
+    </div>
+
+    <h3>FullCircle scenes <small>static reconstructions from the <a href="https://theialab.github.io/fullcircle/">FullCircle</a> dataset</small></h3>
+    <div class="grid">
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=fullcircle-distsort-flat2"><img src="thumbs/fullcircle-flat2.webp" alt="FullCircle Flat 2" loading="lazy"><span class="name">Flat 2</span></a>
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=fullcircle-distsort-room2"><img src="thumbs/fullcircle-room2.webp" alt="FullCircle Room 2" loading="lazy"><span class="name">Room 2</span></a>
+      <a class="scene" href="https://switchsplat.pages.dev/?scene=fullcircle-distsort-lounge"><img src="thumbs/fullcircle-lounge.webp" alt="FullCircle Lounge" loading="lazy"><span class="name">Lounge</span></a>
+    </div>
+  </section>
+
+  <section>
+    <h2>BibTeX</h2>
+<pre>@inproceedings{xie2026switchsplat,
+  title     = {SwitchSplat: Learning Discrete Object States from Casually Captured Scenes},
+  author    = {Xie, Yizheng and Foroutan, Yalda and Shramko, George and Rebain, Daniel
+               and Govindarajan, Shrisudhan and Tagliasacchi, Andrea},
+  booktitle = {SIGGRAPH Asia 2026 Conference Papers},
+  year      = {2026}
+}</pre>
+  </section>
+
+  <footer>
+    SwitchSplat · Simon Fraser University
+  </footer>
+</main>
+</body>
 </html>
