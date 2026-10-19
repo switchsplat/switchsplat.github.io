@@ -426,6 +426,182 @@
   </script>
 
 
+  <!-- scene tours: each scene's viewer tour rendered with its 3DGRT checkpoint. Cards show a still until on screen;
+       featured cards play while visible, the smaller ones one at a time (the one under the pointer or nearest the
+       middle of the screen). Tap = full clip with sound controls. Small silent 480p loops; full clips load on tap. -->
+  <style>
+    .ss-tours .tours-featured { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+    .ss-tours .tours-more { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; margin-top: 18px; }
+    .ss-tour { position: relative; display: block; padding: 0; border: 0; background: #e9ece8; cursor: pointer; text-align: left;
+      border-radius: 12px; overflow: hidden; aspect-ratio: 16 / 9; box-shadow: 0 6px 22px rgba(0,0,0,.10);
+      transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s; font: inherit; color: inherit; }
+    .ss-tour:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(0,0,0,.16), 0 0 0 2px var(--accent); }
+    .ss-tour:focus-visible { outline: 3px solid rgba(31,111,74,.45); outline-offset: 3px; }
+    .ss-tour video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ss-tour .label { position: absolute; left: 10px; bottom: 10px; padding: 3px 12px; border-radius: 999px;
+      background: rgba(18,22,20,.58); color: #fff; font-weight: 600; font-size: .9rem;
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+    .tours-more .ss-tour { border-radius: 10px; }
+    .tours-more .ss-tour .label { left: 8px; bottom: 8px; font-size: .8rem; padding: 2px 10px; }
+    .ss-tour .expand { position: absolute; right: 10px; bottom: 10px; width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(18,22,20,.58); color: #fff; display: flex; align-items: center; justify-content: center; opacity: .85; }
+    .tours-more .ss-tour .expand { display: none; }
+    .ss-tour .expand svg { width: 15px; height: 15px; fill: currentColor; }
+    .ss-lightbox { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 16px; padding: 20px; background: rgba(12,15,13,.88); opacity: 0; pointer-events: none; transition: opacity .25s; }
+    .ss-lightbox.open { opacity: 1; pointer-events: auto; }
+    .ss-lightbox video { width: min(100%, 1280px, calc((100vh - 140px) * 16 / 9)); aspect-ratio: 16 / 9; border-radius: 12px; background: #000; }
+    .ss-lightbox .row { display: flex; gap: 12px; align-items: center; }
+    .ss-lightbox .close { width: 44px; height: 44px; border: 0; border-radius: 50%; background: rgba(255,255,255,.14); color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; }
+    .ss-lightbox .close svg { width: 22px; height: 22px; fill: currentColor; }
+    @media (prefers-reduced-motion: reduce) { .ss-tour { transition: none; } }
+  </style>
+  <section class="ss-tours">
+    <h2>Scene tours</h2>
+    <p class="lead">Fly-throughs of the learned scenes, switching objects along the way. Tap a clip to watch it full size.</p>
+    <div class="tours-featured">
+      <button class="ss-tour" type="button" data-viewer="viewer/?scene=best-kitchen" data-hd="tours/kitchen_1080.mp4" data-sd="tours/kitchen_720.mp4" aria-label="Watch the Kitchen 1 tour">
+        <video muted loop playsinline preload="none" poster="tours/kitchen_poster.jpg" data-src="tours/kitchen_card.mp4"></video>
+        <span class="label">Kitchen 1</span>
+        <span class="expand" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4Zm10 0h6v6h-2V6h-4V4ZM4 14h2v4h4v2H4v-6Zm14 0h2v6h-6v-2h4v-4Z"/></svg></span>
+      </button>
+      <button class="ss-tour" type="button" data-viewer="viewer/?scene=best-car" data-hd="tours/car_1080.mp4" data-sd="tours/car_720.mp4" aria-label="Watch the Car tour">
+        <video muted loop playsinline preload="none" poster="tours/car_poster.jpg" data-src="tours/car_card.mp4"></video>
+        <span class="label">Car</span>
+        <span class="expand" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4Zm10 0h6v6h-2V6h-4V4ZM4 14h2v4h4v2H4v-6Zm14 0h2v6h-6v-2h4v-4Z"/></svg></span>
+      </button>
+      <button class="ss-tour" type="button" data-viewer="viewer/?scene=best-shri" data-hd="tours/shri_1080.mp4" data-sd="tours/shri_720.mp4" aria-label="Watch the Flat 3 tour">
+        <video muted loop playsinline preload="none" poster="tours/shri_poster.jpg" data-src="tours/shri_card.mp4"></video>
+        <span class="label">Flat 3</span>
+        <span class="expand" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4Zm10 0h6v6h-2V6h-4V4ZM4 14h2v4h4v2H4v-6Zm14 0h2v6h-6v-2h4v-4Z"/></svg></span>
+      </button>
+    </div>
+    <div class="tours-more">
+      <button class="ss-tour" type="button" data-viewer="viewer/?scene=best-yalda" data-hd="tours/yalda_1080.mp4" data-sd="tours/yalda_720.mp4" aria-label="Watch the Flat 1 tour">
+        <video muted loop playsinline preload="none" poster="tours/yalda_poster.jpg" data-src="tours/yalda_card.mp4"></video>
+        <span class="label">Flat 1</span>
+        <span class="expand" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4Zm10 0h6v6h-2V6h-4V4ZM4 14h2v4h4v2H4v-6Zm14 0h2v6h-6v-2h4v-4Z"/></svg></span>
+      </button>
+      <button class="ss-tour" type="button" data-viewer="viewer/?scene=best-egor" data-hd="tours/egor_1080.mp4" data-sd="tours/egor_720.mp4" aria-label="Watch the Flat 2 tour">
+        <video muted loop playsinline preload="none" poster="tours/egor_poster.jpg" data-src="tours/egor_card.mp4"></video>
+        <span class="label">Flat 2</span>
+        <span class="expand" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4Zm10 0h6v6h-2V6h-4V4ZM4 14h2v4h4v2H4v-6Zm14 0h2v6h-6v-2h4v-4Z"/></svg></span>
+      </button>
+      <button class="ss-tour" type="button" data-viewer="viewer/?scene=best-balcony" data-hd="tours/balcony_1080.mp4" data-sd="tours/balcony_720.mp4" aria-label="Watch the Balcony tour">
+        <video muted loop playsinline preload="none" poster="tours/balcony_poster.jpg" data-src="tours/balcony_card.mp4"></video>
+        <span class="label">Balcony</span>
+        <span class="expand" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4Zm10 0h6v6h-2V6h-4V4ZM4 14h2v4h4v2H4v-6Zm14 0h2v6h-6v-2h4v-4Z"/></svg></span>
+      </button>
+      <button class="ss-tour" type="button" data-viewer="viewer/?scene=best-t_oslo" data-hd="tours/t_oslo_1080.mp4" data-sd="tours/t_oslo_720.mp4" aria-label="Watch the Oslo tour">
+        <video muted loop playsinline preload="none" poster="tours/t_oslo_poster.jpg" data-src="tours/t_oslo_card.mp4"></video>
+        <span class="label">Oslo</span>
+        <span class="expand" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4Zm10 0h6v6h-2V6h-4V4ZM4 14h2v4h4v2H4v-6Zm14 0h2v6h-6v-2h4v-4Z"/></svg></span>
+      </button>
+      <button class="ss-tour" type="button" data-viewer="viewer/?scene=best-chair" data-hd="tours/chair_1080.mp4" data-sd="tours/chair_720.mp4" aria-label="Watch the Chair tour">
+        <video muted loop playsinline preload="none" poster="tours/chair_poster.jpg" data-src="tours/chair_card.mp4"></video>
+        <span class="label">Chair</span>
+        <span class="expand" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4Zm10 0h6v6h-2V6h-4V4ZM4 14h2v4h4v2H4v-6Zm14 0h2v6h-6v-2h4v-4Z"/></svg></span>
+      </button>
+    </div>
+  </section>
+  <div class="ss-lightbox" id="ss-lightbox" aria-hidden="true">
+    <video controls playsinline muted></video>
+    <div class="row">
+      <a class="ss-cta small" href="viewer/"><span class="ss-cta-text"><b>Open in the viewer</b></span>
+        <svg class="ss-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3 1.4-1.4Z"/></svg></a>
+      <button class="close" type="button" aria-label="Close"><svg viewBox="0 0 24 24"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4 6.4 5Z"/></svg></button>
+    </div>
+  </div>
+  <script>
+    (() => {
+      // Cloudflare Pages previews ignore byte ranges (Safari then refuses a plain <video src>), so load whole files there.
+      const viaBlob = location.hostname.endsWith('pages.dev');
+      const blobs = {};
+      const setSrc = async (video, url) => {
+        if (!viaBlob) { video.src = url; return; }
+        blobs[url] = blobs[url] || fetch(url).then((r) => r.blob()).then((b) => URL.createObjectURL(b));
+        video.src = await blobs[url];
+      };
+      const lightbox = document.getElementById('ss-lightbox');
+      const big = lightbox.querySelector('video');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const featured = [...document.querySelectorAll('.tours-featured .ss-tour')];
+      const more = [...document.querySelectorAll('.tours-more .ss-tour')];
+      const ratio = new Map();
+      let hovered = null;
+      const playing = new Set();
+      const wanted = () => {
+        const want = new Set();
+        if (reduce || document.hidden || lightbox.classList.contains('open')) return want;
+        featured.forEach((c) => { if ((ratio.get(c) || 0) >= .5) want.add(c); });
+        let best = hovered, score = -1;
+        if (!best) more.forEach((c) => {
+          const r = ratio.get(c) || 0;
+          if (r < .6) return;
+          const b = c.getBoundingClientRect();
+          const s = r - Math.abs(b.top + b.height / 2 - innerHeight / 2) / innerHeight - Math.abs(b.left + b.width / 2 - innerWidth / 2) / innerWidth;
+          if (s > score) { score = s; best = c; }
+        });
+        if (best) want.add(best);
+        return want;
+      };
+      const update = () => {
+        const want = wanted();
+        playing.forEach((c) => { if (!want.has(c)) { c.querySelector('video').pause(); playing.delete(c); } });
+        want.forEach(async (c) => {
+          if (playing.has(c)) return;
+          playing.add(c);
+          const v = c.querySelector('video');
+          if (!v.src) await setSrc(v, v.dataset.src);
+          if (playing.has(c)) v.play().catch(() => {});
+        });
+      };
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => ratio.set(e.target, e.isIntersecting ? e.intersectionRatio : 0));
+        update();
+      }, { threshold: [0, .3, .5, .6, .8, 1] });
+      [...featured, ...more].forEach((card) => {
+        io.observe(card);
+        if (matchMedia('(hover: hover)').matches && more.includes(card)) {
+          card.addEventListener('pointerenter', () => { hovered = card; update(); });
+          card.addEventListener('pointerleave', () => { hovered = null; update(); });
+        }
+        card.addEventListener('click', () => open(card));
+      });
+      addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
+      document.addEventListener('visibilitychange', update);
+
+      const av1 = (async () => {
+        try {
+          const info = await navigator.mediaCapabilities.decodingInfo({ type: 'file', video: {
+            contentType: 'video/mp4; codecs="av01.0.08M.08"', width: 1920, height: 1080, bitrate: 2000000, framerate: 60 } });
+          return info.supported && info.smooth && !(matchMedia('(max-width: 900px)').matches && !info.powerEfficient);
+        } catch { return false; }
+      })();
+      async function open(card) {
+        lightbox.querySelector('a').href = card.dataset.viewer;
+        lightbox.classList.add('open');
+        lightbox.setAttribute('aria-hidden', 'false');
+        update();
+        big.poster = card.querySelector('video').poster;
+        big.loop = true;
+        await setSrc(big, (await av1) ? card.dataset.hd : card.dataset.sd);
+        big.currentTime = 0;
+        big.play().catch(() => {});
+      }
+      const close = () => {
+        lightbox.classList.remove('open');
+        lightbox.setAttribute('aria-hidden', 'true');
+        big.pause();
+        update();
+      };
+      lightbox.querySelector('.close').addEventListener('click', close);
+      lightbox.addEventListener('click', (e) => { if (e.target === lightbox) close(); });
+      addEventListener('keydown', (e) => { if (e.key === 'Escape' && lightbox.classList.contains('open')) close(); });
+    })();
+  </script>
+
   <section>
     <h2>Abstract</h2>
     <p class="abstract">
