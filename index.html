@@ -204,7 +204,8 @@
   <div class="ss-teaser" id="ss-teaser">
     <div class="ss-stage">
       <video id="ss-video" poster="teaser/poster.jpg" autoplay muted playsinline preload="auto"
-             data-hd="teaser/switchsplat_teaser.mp4" data-sd="teaser/switchsplat_teaser_720.mp4"></video>
+             data-hd="teaser/switchsplat_teaser.mp4" data-sd="teaser/switchsplat_teaser_720.mp4"
+             data-hd-av1="teaser/switchsplat_teaser_av1.mp4" data-sd-av1="teaser/switchsplat_teaser_av1_720.mp4"></video>
       <div class="ss-loading" aria-hidden="true"></div>
       <button class="ss-play" type="button" aria-label="Play the teaser" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg></button>
       <div class="ss-debug" hidden></div>
@@ -239,14 +240,15 @@
       let states = [false, false, false, false], k = CENTRE, token = 0, sway = null, audio = null;
       const cache = new Map();
       const combo = () => states.map(s => (s ? 1 : 0)).join('');
-      const url = (c, i) => `${BASE}${c}/${String(i).padStart(2, '0')}.webp`;
+      const url = (c, i) => `${BASE}${c}/${String(i).padStart(2, '0')}.avif`;
+      let avif = null;                         // AVIF decodes? (Safari 16.4+, Chrome, Firefox); learnt from the first frame
       function get(c, i) {
         const u = url(c, i);
         let im = cache.get(u);
         if (!im) {
           im = new Image();
           im.src = u;
-          im.ready = im.decode().then(() => im, () => im);
+          im.ready = im.decode().then(() => { avif = true; return im; }, () => { if (avif === null) avif = false; return im; });
           cache.set(u, im);
         }
         return im;
@@ -266,22 +268,38 @@
         chips.forEach((b, i) => b.setAttribute('aria-pressed', String(states[i])));
         unseen.classList.toggle('on', states.filter(Boolean).length >= 2);   // the capture opened one part at a time
       }
-      function click() {
+      // The video's own switch ticks (tick_on/tick_off.wav, 14 KB each). Web Audio is unlocked inside a tap
+      // (iOS keeps a context suspended until then) and, where supported, uses the 'playback' audio session so
+      // the iPhone silent switch does not mute it while the video's sound is on.
+      const ticks = {};
+      function ensureAudio() {
+        if (!audio) {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return;
+          audio = new AC();
+          ['on', 'off'].forEach(n => fetch(`teaser/tick_${n}.wav`).then(r => r.arrayBuffer())
+            .then(b => new Promise((ok, no) => audio.decodeAudioData(b, ok, no))).then(buf => { ticks[n] = buf; }).catch(() => {}));
+        }
+        try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+        if (audio.state !== 'running') audio.resume().catch(() => {});
+      }
+      function tick(on) {
         if (!soundOn) return;
-        audio = audio || new (window.AudioContext || window.webkitAudioContext)();
-        const t = audio.currentTime, o = audio.createOscillator(), g = audio.createGain();
-        o.frequency.setValueAtTime(1900, t);
-        o.frequency.exponentialRampToValueAtTime(600, t + .05);
-        g.gain.setValueAtTime(.12, t);
-        g.gain.exponentialRampToValueAtTime(.0001, t + .08);
-        o.connect(g).connect(audio.destination);
-        o.start(t);
-        o.stop(t + .09);
+        ensureAudio();
+        const buf = audio && ticks[on ? 'on' : 'off'];
+        if (buf) {
+          const src = audio.createBufferSource();
+          src.buffer = buf;
+          src.connect(audio.destination);
+          src.start();
+        } else {
+          new Audio(`teaser/tick_${on ? 'on' : 'off'}.wav`).play().catch(() => {});   // first tap, still decoding
+        }
       }
       function stopSway() { if (sway) { clearInterval(sway); sway = null; } }
       function engage() { stopSway(); root.classList.remove('invite'); root.classList.add('engaged'); }
       function enterTurn() {
-        if (root.classList.contains('turn')) return;
+        if (root.classList.contains('turn') || avif === false) return;
         states = [false, false, false, false];       // the teaser ends with every part switched off
         k = CENTRE;
         update();
@@ -311,7 +329,7 @@
         engage();
         states[i] = !states[i];
         update();
-        click();
+        tick(states[i]);
         show();
         prefetch(combo(), k);
       }));
@@ -345,7 +363,7 @@
         sound.setAttribute('aria-pressed', String(soundOn));
         sound.setAttribute('aria-label', soundOn ? 'Turn sound off' : 'Turn sound on');
       };
-      sound.addEventListener('click', () => { soundOn = !soundOn; video.muted = !soundOn; icon(); });
+      sound.addEventListener('click', () => { soundOn = !soundOn; video.muted = !soundOn; icon(); if (soundOn) ensureAudio(); });
       function tryPlay() {
         const p = video.play();
         if (p && p.catch) p.then(() => { status = 'playing'; }, e => { status = 'play() refused: ' + e.name; offerPlay(); });
@@ -360,12 +378,25 @@
       });
       video.addEventListener('playing', () => { root.classList.add('started'); playBtn.hidden = true; root.classList.remove('blocked'); });
       icon();
-      // Phones get the 720p file. The preview host cannot stream (no byte ranges), so it hands us a blob.
-      const SRC = matchMedia('(max-width: 900px)').matches ? video.dataset.sd : video.dataset.hd;
+      // Phones get 720p. AV1 (~40% smaller) only where the browser says it decodes smoothly (and, on phones,
+      // in hardware); otherwise H.264, which every browser plays. The preview host cannot stream (no byte
+      // ranges), so there window.SS_LOAD hands back a blob.
+      const phone = matchMedia('(max-width: 900px)').matches;
+      let SRC = phone ? video.dataset.sd : video.dataset.hd;
+      async function pickSource() {
+        try {
+          const cfg = { type: 'file', video: { contentType: `video/mp4; codecs="av01.0.${phone ? '08' : '09'}M.08"`,
+            width: phone ? 1280 : 1920, height: phone ? 720 : 1080, bitrate: phone ? 1400000 : 2600000, framerate: 60 } };
+          const r = navigator.mediaCapabilities && await navigator.mediaCapabilities.decodingInfo(cfg);
+          if (r && r.supported && r.smooth && (r.powerEfficient || !phone)) SRC = phone ? video.dataset.sdAv1 : video.dataset.hdAv1;
+        } catch (e) {}
+        return SRC;
+      }
       const setSource = url => { video.src = url; status = 'source set'; tryPlay(); setTimeout(offerPlay, 6000); };
       if (reduced) { video.removeAttribute('autoplay'); video.muted = true; icon(); enterTurn(); }
-      else if (window.SS_LOAD) { status = 'downloading'; window.SS_LOAD(SRC, setSource); }
-      else setSource(SRC);
+      else pickSource().then(src => {
+        if (window.SS_LOAD) { status = 'downloading'; window.SS_LOAD(src, setSource); } else setSource(src);
+      });
       if (/[?&]debug\b/.test(location.search)) {
         const box = root.querySelector('.ss-debug');
         box.hidden = false;
