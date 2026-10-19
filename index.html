@@ -77,9 +77,10 @@
     <p class="notes"><sup>*</sup>Equal contribution &nbsp; <sup>†</sup>Equal advising</p>
 
     <div class="buttons">
-      <a class="button primary" href="viewer/">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.3 6.7 3.7L12 11.7 5.3 8 12 4.3ZM5 9.7l6 3.3v6.6l-6-3.3V9.7Zm8 9.9V13l6-3.3v6.6l-6 3.3Z"/></svg>
-        Interactive Viewer
+      <a class="ss-cta small" href="viewer/">
+        <span class="ss-orb"><img src="teaser/turn/orb/1111.webp" alt=""></span>
+        <span class="ss-cta-text"><b>Interactive Viewer</b></span>
+        <svg class="ss-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 19.9 12l-6.7 6.7-1.4-1.4 4.3-4.3H4v-2h12.1l-4.3-4.3 1.4-1.4Z"/></svg>
       </a>
       <span class="button disabled">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6V2Zm8 1.5V8h4.5L14 3.5ZM8 12h10v1.5H8V12Zm0 3.5h10V17H8v-1.5Zm0 3.5h7v1.5H8V19Z"/></svg>
@@ -91,6 +92,306 @@
       </span>
     </div>
   </header>
+
+  <!-- teaser: plays once, then its last shot becomes a small pre-rendered "your turn" preview
+       (images from the public viewer's own Car model and renderer) -->
+  <style>
+    .ss-teaser { position: relative; max-width: 1080px; margin: 34px auto 0; container-type: inline-size; }
+    .ss-stage { position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: var(--bg);
+      box-shadow: 0 10px 34px rgba(0,0,0,.10); }
+    .ss-stage video, .ss-frame { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover;
+      user-select: none; -webkit-user-drag: none; }
+    .ss-turn { position: absolute; inset: 0; opacity: 0; transition: opacity .45s ease; pointer-events: none;
+      cursor: grab; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+    .ss-teaser.turn .ss-turn { opacity: 1; pointer-events: auto; }
+    .ss-turn.dragging { cursor: grabbing; }
+    .ss-pill { display: inline-flex; align-items: center; gap: .55em; height: 2em; padding: 0 .8em; border: 0; border-radius: 999px;
+      background: rgba(18,22,20,.58); color: #fff; font-family: inherit; font-weight: 500; font-size: 1em; line-height: 1; white-space: nowrap;
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+    .ss-scrim { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .6s ease;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.5) 100%), linear-gradient(90deg, rgba(0,0,0,.25) 0%, rgba(0,0,0,0) 70%); }
+    .ss-yourturn { position: absolute; left: 5.7cqw; bottom: 5cqw; color: #fff; pointer-events: none; opacity: 0;
+      transform: translateY(1cqw); transition: opacity .6s ease .25s, transform .6s cubic-bezier(.2,.8,.2,1) .25s;
+      text-shadow: 0 .2cqw 1.2cqw rgba(0,0,0,.45); }
+    .ss-yourturn b { display: block; font-size: 5.4cqw; font-weight: 760; letter-spacing: -.02em; line-height: 1.05; }
+    .ss-yourturn span { display: block; margin-top: .9cqw; font-size: 2.1cqw; font-weight: 550; opacity: .92; }
+    .ss-yourturn .short { display: none; }
+    .ss-teaser.turn .ss-scrim, .ss-teaser.turn .ss-yourturn { opacity: 1; transform: none; }
+    .ss-teaser.turn.engaged .ss-scrim, .ss-teaser.turn.engaged .ss-yourturn { opacity: 0; transition-delay: 0s; }
+    /* controls of the slot pills sit where the video's own pills were, so the video hands over to real buttons */
+    .ss-chips { position: absolute; right: 1.875cqw; top: calc(56.25cqw * .947); transform: translateY(-50%);
+      display: flex; gap: .5em; font-size: clamp(13px, 1.7cqw, 20px); opacity: 0; pointer-events: none; transition: opacity .4s ease .4s; z-index: 2; }
+    .ss-teaser.turn .ss-chips { opacity: 1; pointer-events: auto; }
+    .ss-chip { cursor: pointer; transition: transform .22s cubic-bezier(.2,.8,.2,1), background .2s; }
+    @media (hover: hover) { .ss-chip:hover { background: rgba(18,22,20,.82); transform: translateY(-2px); } }
+    .ss-chip:active { transform: translateY(0) scale(.97); }
+    .ss-chip:focus-visible { outline: 2px solid #5fd39a; outline-offset: 2px; }
+    .ss-chip { color: rgba(255,255,255,.72); }
+    .ss-chip .dot { width: .6em; height: .6em; border-radius: 50%; background: rgba(255,255,255,.3); transition: background .15s, box-shadow .15s; }
+    .ss-chip[aria-pressed="true"] { color: #fff; }
+    .ss-chip[aria-pressed="true"] .dot { background: #5fd39a; box-shadow: 0 0 0 .2em rgba(95,211,154,.22); }
+    .ss-teaser.invite .ss-chip { animation: ss-invite 1.7s ease-in-out 2; }
+    .ss-teaser.invite .ss-chip:nth-child(2) { animation-delay: .12s; }
+    .ss-teaser.invite .ss-chip:nth-child(3) { animation-delay: .24s; }
+    .ss-teaser.invite .ss-chip:nth-child(4) { animation-delay: .36s; }
+    @keyframes ss-invite { 0%, 100% { box-shadow: 0 0 0 0 rgba(95,211,154,0); transform: none; }
+      40% { box-shadow: 0 0 0 .35em rgba(95,211,154,.35); transform: translateY(-2px); } }
+    .ss-unseen { position: absolute; right: 1.875cqw; top: calc(56.25cqw * .947 - 2.6em); transform: translateY(-50%);
+      font-size: clamp(13px, 1.7cqw, 20px); background: rgba(40,30,6,.62); color: #ffecbe; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 2; }
+    .ss-unseen .dot { width: .6em; height: .6em; border-radius: 50%; background: #ffc43d; }
+    .ss-teaser.turn .ss-unseen.on { opacity: 1; }
+    .ss-ctrl { position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 3; }
+    .ss-ctrl button { width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(18,22,20,.55); color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: background .2s; }
+    .ss-ctrl button:hover { background: rgba(18,22,20,.78); }
+    .ss-ctrl svg { width: 20px; height: 20px; fill: currentColor; }
+    .ss-play { position: absolute; left: 50%; top: 50%; width: 84px; height: 84px; margin: -42px 0 0 -42px; border: 0; border-radius: 50%;
+      background: rgba(18,22,20,.62); color: #fff; cursor: pointer; z-index: 4; display: flex; align-items: center; justify-content: center;
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+    .ss-play[hidden] { display: none; }
+    .ss-play svg { width: 40px; height: 40px; fill: currentColor; margin-left: 5px; }
+    .ss-loading { position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%;
+      border: 3px solid rgba(29,36,32,.15); border-top-color: rgba(29,36,32,.55); animation: ss-spin .9s linear infinite; pointer-events: none; }
+    .ss-teaser.started .ss-loading, .ss-teaser.turn .ss-loading, .ss-teaser.blocked .ss-loading { display: none; }
+    @keyframes ss-spin { to { transform: rotate(360deg); } }
+    .ss-debug { position: absolute; left: 8px; top: 8px; z-index: 5; max-width: 70%; padding: 6px 8px; border-radius: 6px;
+      background: rgba(0,0,0,.72); color: #9f9; font: 11px/1.35 ui-monospace, Menlo, monospace; white-space: pre-wrap; pointer-events: none; }
+    .ss-replay { display: none !important; }
+    .ss-teaser.turn .ss-replay { display: flex !important; }
+    /* the header's viewer button: a glossy pill with a small orb of the car; pulses when the preview starts */
+    .ss-cta { position: relative; display: inline-flex; align-items: center; gap: 14px; padding: 7px 24px 7px 7px; border-radius: 999px;
+      color: #fff; text-decoration: none; isolation: isolate; overflow: hidden;
+      background: linear-gradient(180deg, #2f8a5f 0%, #1f6f4a 48%, #175a3b 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.38), inset 0 -3px 8px rgba(0,0,0,.28), 0 12px 28px rgba(31,111,74,.32), 0 2px 5px rgba(0,0,0,.16);
+      transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s; will-change: transform; }
+    .ss-cta::after { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; transform: translateX(-130%);
+      background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.32) 50%, transparent 65%); }
+    .ss-cta:hover::after { animation: ss-sheen .9s ease; }
+    @keyframes ss-sheen { to { transform: translateX(130%); } }
+    .ss-cta:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.42), inset 0 -3px 8px rgba(0,0,0,.28), 0 18px 36px rgba(31,111,74,.40), 0 3px 8px rgba(0,0,0,.18); }
+    .ss-cta:focus-visible { outline: 3px solid rgba(31,111,74,.45); outline-offset: 3px; }
+    .ss-orb { position: relative; width: 46px; height: 46px; border-radius: 50%; overflow: hidden; flex: none; background: #0d2a1d;
+      box-shadow: 0 0 0 2px rgba(255,255,255,.55), 0 3px 8px rgba(0,0,0,.3); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+    .ss-orb img { width: 100%; height: 100%; display: block; }
+    .ss-cta:hover .ss-orb { transform: scale(1.08) rotate(-4deg); }
+    .ss-cta-text { display: flex; flex-direction: column; line-height: 1.2; }
+    .ss-cta-text b { font-weight: 650; font-size: 1.05rem; letter-spacing: -.005em; }
+    .ss-cta-text small { font-size: .78rem; color: rgba(255,255,255,.78); }
+    .ss-cta.small { gap: 10px; padding: 5px 20px 5px 5px; }
+    .ss-cta.small .ss-orb { width: 32px; height: 32px; }
+    .ss-cta.small .ss-cta-text b { font-size: .98rem; }
+    .ss-arrow { width: 18px; height: 18px; fill: currentColor; margin-left: 4px; transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+    .ss-cta:hover .ss-arrow { transform: translateX(4px); }
+    .ss-cta.call { animation: ss-call 2s ease-out .6s 3; }
+    @keyframes ss-call { 0% { box-shadow: inset 0 1px 0 rgba(255,255,255,.38), inset 0 -3px 8px rgba(0,0,0,.28), 0 0 0 0 rgba(31,111,74,.45), 0 12px 28px rgba(31,111,74,.32); }
+      100% { box-shadow: inset 0 1px 0 rgba(255,255,255,.38), inset 0 -3px 8px rgba(0,0,0,.28), 0 0 0 18px rgba(31,111,74,0), 0 12px 28px rgba(31,111,74,.32); } }
+    @container (max-width: 640px) {
+      .ss-chips, .ss-unseen { position: static; transform: none; justify-content: center; flex-wrap: wrap; font-size: 12px; gap: 6px; margin-top: 10px; }
+      .ss-chip { background: #262b28; }
+      .ss-unseen { display: none; }
+      .ss-teaser:not(.turn) .ss-chips { display: none; }
+      .ss-yourturn { left: 16px; bottom: 14px; }
+      .ss-yourturn b { font-size: 28px; }
+      .ss-yourturn span { font-size: 13px; margin-top: 4px; }
+      .ss-yourturn .long { display: none; }
+      .ss-yourturn .short { display: block; }
+      .ss-ctrl { top: 8px; right: 8px; gap: 6px; }
+      .ss-ctrl button { width: 32px; height: 32px; }
+      .ss-ctrl svg { width: 17px; height: 17px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .ss-teaser *, .ss-teaser *::after { animation: none !important; transition: none !important; } }
+  </style>
+  <div class="ss-teaser" id="ss-teaser">
+    <div class="ss-stage">
+      <video id="ss-video" poster="teaser/poster.jpg" autoplay muted playsinline preload="auto"
+             data-hd="teaser/switchsplat_teaser.mp4" data-sd="teaser/switchsplat_teaser_720.mp4"></video>
+      <div class="ss-loading" aria-hidden="true"></div>
+      <button class="ss-play" type="button" aria-label="Play the teaser" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5Z"/></svg></button>
+      <div class="ss-debug" hidden></div>
+      <div class="ss-turn" aria-label="Pre-rendered preview of the car: drag to look around">
+        <img class="ss-frame" alt="The car from the front right, rendered by SwitchSplat" draggable="false">
+        <div class="ss-scrim"></div>
+        <div class="ss-yourturn"><b>Your turn.</b><span class="long">Tap a part to switch it. Drag to look around.</span><span class="short">Tap a part below.</span></div>
+      </div>
+      <div class="ss-ctrl">
+        <button class="ss-replay" type="button" aria-label="Replay the teaser"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7Z"/></svg></button>
+        <button class="ss-sound" type="button" aria-label="Turn sound on" aria-pressed="false"></button>
+      </div>
+    </div>
+    <div class="ss-unseen ss-pill" aria-live="polite"><span class="dot"></span>Combination never filmed</div>
+    <div class="ss-chips" role="group" aria-label="Switch the car's parts">
+      <button class="ss-pill ss-chip" type="button" aria-pressed="false"><span class="dot"></span>Right door</button>
+      <button class="ss-pill ss-chip" type="button" aria-pressed="false"><span class="dot"></span>Left door</button>
+      <button class="ss-pill ss-chip" type="button" aria-pressed="false"><span class="dot"></span>Hood</button>
+      <button class="ss-pill ss-chip" type="button" aria-pressed="false"><span class="dot"></span>Trunk</button>
+    </div>
+  </div>
+  <script>
+    (() => {
+      const root = document.getElementById('ss-teaser');
+      const video = document.getElementById('ss-video');
+      const frame = root.querySelector('.ss-frame'), turn = root.querySelector('.ss-turn');
+      const unseen = root.querySelector('.ss-unseen');
+      const chips = [...root.querySelectorAll('.ss-chip')];
+      const sound = root.querySelector('.ss-sound'), replay = root.querySelector('.ss-replay');
+      const BASE = 'teaser/turn/', STEPS = 13, CENTRE = 6;
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let states = [false, false, false, false], k = CENTRE, token = 0, sway = null, audio = null;
+      const cache = new Map();
+      const combo = () => states.map(s => (s ? 1 : 0)).join('');
+      const url = (c, i) => `${BASE}${c}/${String(i).padStart(2, '0')}.webp`;
+      function get(c, i) {
+        const u = url(c, i);
+        let im = cache.get(u);
+        if (!im) {
+          im = new Image();
+          im.src = u;
+          im.ready = im.decode().then(() => im, () => im);
+          cache.set(u, im);
+        }
+        return im;
+      }
+      function prefetch(c, around) {          // nearest angles first
+        for (let d = 0; d < STEPS; d++) {
+          const i = around + (d % 2 ? (d + 1) / 2 : -d / 2);
+          if (i >= 0 && i < STEPS) get(c, i);
+        }
+      }
+      async function show() {
+        const my = ++token, im = get(combo(), k);
+        await im.ready;
+        if (my === token) frame.src = im.src;
+      }
+      function update() {
+        chips.forEach((b, i) => b.setAttribute('aria-pressed', String(states[i])));
+        unseen.classList.toggle('on', states.filter(Boolean).length >= 2);   // the capture opened one part at a time
+      }
+      function click() {
+        if (!soundOn) return;
+        audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+        const t = audio.currentTime, o = audio.createOscillator(), g = audio.createGain();
+        o.frequency.setValueAtTime(1900, t);
+        o.frequency.exponentialRampToValueAtTime(600, t + .05);
+        g.gain.setValueAtTime(.12, t);
+        g.gain.exponentialRampToValueAtTime(.0001, t + .08);
+        o.connect(g).connect(audio.destination);
+        o.start(t);
+        o.stop(t + .09);
+      }
+      function stopSway() { if (sway) { clearInterval(sway); sway = null; } }
+      function engage() { stopSway(); root.classList.remove('invite'); root.classList.add('engaged'); }
+      function enterTurn() {
+        if (root.classList.contains('turn')) return;
+        states = [false, false, false, false];       // the teaser ends with every part switched off
+        k = CENTRE;
+        update();
+        prefetch(combo(), k);
+        show();
+        root.classList.remove('engaged');
+        root.classList.add('turn', 'invite');
+        document.querySelectorAll('.ss-cta').forEach(a => { a.classList.remove('call'); void a.offsetWidth; a.classList.add('call'); });
+        setTimeout(() => ['1000', '0100', '0010', '0001', '1100', '1010', '1001', '0110', '0101', '0011', '1111']
+          .forEach(c => get(c, k)), 800);      // one image per likely next state
+        if (!reduced) {                        // a small sway hints that the view can be dragged
+          const seq = [7, 8, 8, 7, 6, 5, 4, 4, 5, 6];
+          let n = 0;
+          setTimeout(() => {
+            if (!root.classList.contains('invite')) return;
+            sway = setInterval(() => { k = seq[n++]; show(); if (n >= seq.length) stopSway(); }, 130);
+          }, 1400);
+        }
+      }
+      function leaveTurn() {
+        stopSway();
+        root.classList.remove('turn', 'invite');
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      }
+      chips.forEach((b, i) => b.addEventListener('click', () => {
+        engage();
+        states[i] = !states[i];
+        update();
+        click();
+        show();
+        prefetch(combo(), k);
+      }));
+      let drag = null;
+      turn.addEventListener('pointerdown', e => {
+        drag = { x: e.clientX, k };
+        turn.setPointerCapture(e.pointerId);
+        turn.classList.add('dragging');
+        engage();
+      });
+      turn.addEventListener('pointermove', e => {
+        if (!drag) return;
+        // dragging right swings the camera left round the car, like the viewer's orbit
+        const dx = (e.clientX - drag.x) / turn.clientWidth;
+        const next = Math.max(0, Math.min(STEPS - 1, Math.round(drag.k - dx * STEPS * 1.5)));
+        if (next !== k) { k = next; show(); }
+      });
+      const end = () => { drag = null; turn.classList.remove('dragging'); };
+      turn.addEventListener('pointerup', end);
+      turn.addEventListener('pointercancel', end);
+      video.addEventListener('timeupdate', () => { if (video.currentTime > 12) prefetch('0000', CENTRE); });
+      video.addEventListener('ended', enterTurn);
+      replay.addEventListener('click', leaveTurn);
+      const off = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3Zm13.6 3 2.7-2.7-1.4-1.4-2.7 2.7-2.7-2.7-1.4 1.4 2.7 2.7-2.7 2.7 1.4 1.4 2.7-2.7 2.7 2.7 1.4-1.4-2.7-2.7Z"/></svg>';
+      const on = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3Zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4ZM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6Z"/></svg>';
+      // Sound is off by default (user, 2026-10-19: be considerate); only the speaker button turns it on.
+      let soundOn = false, status = 'init';
+      const playBtn = root.querySelector('.ss-play');
+      const icon = () => {
+        sound.innerHTML = soundOn ? on : off;
+        sound.setAttribute('aria-pressed', String(soundOn));
+        sound.setAttribute('aria-label', soundOn ? 'Turn sound off' : 'Turn sound on');
+      };
+      sound.addEventListener('click', () => { soundOn = !soundOn; video.muted = !soundOn; icon(); });
+      function tryPlay() {
+        const p = video.play();
+        if (p && p.catch) p.then(() => { status = 'playing'; }, e => { status = 'play() refused: ' + e.name; offerPlay(); });
+      }
+      // Autoplay can be blocked entirely (e.g. iPhone Low Power Mode): then offer a play button.
+      function offerPlay() { if (!root.classList.contains('started') && !root.classList.contains('turn')) { playBtn.hidden = false; root.classList.add('blocked'); } }
+      playBtn.addEventListener('click', () => {
+        playBtn.hidden = true;
+        root.classList.remove('blocked');
+        video.muted = !soundOn;
+        tryPlay();
+      });
+      video.addEventListener('playing', () => { root.classList.add('started'); playBtn.hidden = true; root.classList.remove('blocked'); });
+      icon();
+      // Phones get the 720p file. The preview host cannot stream (no byte ranges), so it hands us a blob.
+      const SRC = matchMedia('(max-width: 900px)').matches ? video.dataset.sd : video.dataset.hd;
+      const setSource = url => { video.src = url; status = 'source set'; tryPlay(); setTimeout(offerPlay, 6000); };
+      if (reduced) { video.removeAttribute('autoplay'); video.muted = true; icon(); enterTurn(); }
+      else if (window.SS_LOAD) { status = 'downloading'; window.SS_LOAD(SRC, setSource); }
+      else setSource(SRC);
+      if (/[?&]debug\b/.test(location.search)) {
+        const box = root.querySelector('.ss-debug');
+        box.hidden = false;
+        setInterval(() => {
+          box.textContent = `${status}\nsrc ${SRC}\nready ${video.readyState} net ${video.networkState} err ${video.error ? video.error.code : '-'}\n` +
+            `paused ${video.paused} muted ${video.muted} t ${video.currentTime.toFixed(2)} ended ${video.ended}\n${navigator.userAgent}`;
+        }, 500);
+      }
+      // call-to-action orbs cycle through a few states; the pill leans toward the pointer
+      const orbs = [...document.querySelectorAll('.ss-orb img')];
+      const cycle = ['0000', '1000', '1010', '1011', '1111'];
+      cycle.forEach(c => { new Image().src = `${BASE}orb/${c}.webp`; });
+      let o = 0;
+      if (!reduced) setInterval(() => { o = (o + 1) % cycle.length; orbs.forEach(im => { im.src = `${BASE}orb/${cycle[o]}.webp`; }); }, 700);
+      document.querySelectorAll('.ss-cta').forEach(a => {
+        a.addEventListener('pointermove', e => {
+          if (reduced || e.pointerType !== 'mouse') return;
+          const r = a.getBoundingClientRect();
+          const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+          a.style.transform = `translate(${x * 8}px, ${y * 6 - 2}px)`;
+        });
+        a.addEventListener('pointerleave', () => { a.style.transform = ''; });
+      });
+    })();
+  </script>
+
 
   <section>
     <h2>Abstract</h2>
