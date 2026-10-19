@@ -52,6 +52,25 @@
       overflow-x: auto; font-size: 0.85rem; line-height: 1.5; }
     footer { margin-top: 64px; text-align: center; color: var(--muted); font-size: 0.85rem; }
     footer a { color: inherit; }
+
+    /* FullCircle scenes: the talk deck's bubble cluster, linking to the FullCircle viewer */
+    .fc-card { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: center; gap: 32px;
+      padding: 26px 30px; border: 1px solid rgba(158,105,218,.32); border-radius: 22px;
+      background: radial-gradient(circle at 28% 50%, rgba(158,105,218,.13), rgba(158,105,218,.03) 70%), var(--card); }
+    .fc-cluster { position: relative; width: 100%; }
+    .fc-cluster a { position: absolute; display: block; aspect-ratio: 1; border-radius: 50%; }
+    .fc-cluster a:hover, .fc-cluster a:focus-visible { z-index: 1; }
+    .fc-cluster img { display: block; width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 5px 14px rgba(0,0,0,.18);
+      transition: transform .15s, box-shadow .15s; }
+    .fc-cluster a:hover img, .fc-cluster a:focus-visible img { transform: scale(1.1); box-shadow: 0 10px 24px rgba(0,0,0,.25), 0 0 0 2px #9e69da; }
+    .fc-copy .fc-title { font-size: 1.3rem; font-weight: 700; margin: 0 0 6px; }
+    .fc-copy .fc-title b { color: #8a55cc; }
+    .fc-copy p { margin: 0 0 16px; color: var(--muted); }
+    .fc-button { display: inline-flex; padding: 10px 20px; border-radius: 999px; background: #8a55cc; color: #fff;
+      font-weight: 600; text-decoration: none; white-space: nowrap; }
+    .fc-button:hover { background: #7743b8; }
+    .fc-more { display: block; margin-top: 12px; font-size: .9rem; color: var(--muted); }
+    @media (max-width: 720px) { .fc-card { grid-template-columns: 1fr; gap: 18px; padding: 18px; } }
   </style>
 </head>
 <body>
@@ -635,31 +654,39 @@
       <a class="scene" href="viewer/?scene=best-t_oslo"><img src="thumbs/t_oslo.webp" alt="Oslo" loading="lazy"><span class="name">Oslo</span></a>
     </div>
 
-    <h3>FullCircle scenes <small>23 static reconstructions from the <a href="https://theialab.github.io/fullcircle/">FullCircle</a> dataset, in the <a href="https://theialab.github.io/fullcircle/viewer/">FullCircle viewer</a></small></h3>
-    <div class="grid">
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-room1"><img src="thumbs/fullcircle-mcmc-room1.webp" alt="FullCircle Room 1 (MCMC)" loading="lazy"><span class="name">Room 1 · MCMC</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-flat1"><img src="thumbs/fullcircle-flat1.webp" alt="FullCircle Flat 1" loading="lazy"><span class="name">Flat 1</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-flat2"><img src="thumbs/fullcircle-flat2.webp" alt="FullCircle Flat 2" loading="lazy"><span class="name">Flat 2</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-room2"><img src="thumbs/fullcircle-room2.webp" alt="FullCircle Room 2" loading="lazy"><span class="name">Room 2</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-room3"><img src="thumbs/fullcircle-mcmc-room3.webp" alt="FullCircle Room 3 (MCMC)" loading="lazy"><span class="name">Room 3 · MCMC</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-lab"><img src="thumbs/fullcircle-mcmc-lab.webp" alt="FullCircle Lab (MCMC)" loading="lazy"><span class="name">Lab · MCMC</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-lounge"><img src="thumbs/fullcircle-mcmc-lounge.webp" alt="FullCircle Lounge (MCMC)" loading="lazy"><span class="name">Lounge · MCMC</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-persons"><img src="thumbs/fullcircle-persons.webp" alt="FullCircle Persons" loading="lazy"><span class="name">Persons</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-dark"><img src="thumbs/fullcircle-dark.webp" alt="FullCircle Dark" loading="lazy"><span class="name">Dark</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-bedroom2"><img src="thumbs/fullcircle-bedroom2.webp" alt="FullCircle Bedroom 2" loading="lazy"><span class="name">Bedroom 2</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-bedroom3"><img src="thumbs/fullcircle-mcmc-bedroom3.webp" alt="FullCircle Bedroom 3 (MCMC)" loading="lazy"><span class="name">Bedroom 3 · MCMC</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-kitchen"><img src="thumbs/fullcircle-kitchen.webp" alt="FullCircle Kitchen" loading="lazy"><span class="name">Kitchen</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-oslo"><img src="thumbs/fullcircle-oslo.webp" alt="FullCircle Oslo" loading="lazy"><span class="name">Oslo</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-cs"><img src="thumbs/fullcircle-mcmc-cs.webp" alt="FullCircle CS (MCMC)" loading="lazy"><span class="name">CS · MCMC</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-lounge_2"><img src="thumbs/fullcircle-mcmc-lounge_2.webp" alt="FullCircle Lounge 2 (MCMC)" loading="lazy"><span class="name">Lounge 2 · MCMC</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-parking"><img src="thumbs/fullcircle-mcmc-parking.webp" alt="FullCircle Parking (MCMC)" loading="lazy"><span class="name">Parking · MCMC</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-robot"><img src="thumbs/fullcircle-mcmc-robot.webp" alt="FullCircle Robot (MCMC)" loading="lazy"><span class="name">Robot · MCMC</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-safeway_1"><img src="thumbs/fullcircle-mcmc-safeway_1.webp" alt="FullCircle Safeway 1 (MCMC)" loading="lazy"><span class="name">Safeway 1 · MCMC</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-safeway_2"><img src="thumbs/fullcircle-mcmc-safeway_2.webp" alt="FullCircle Safeway 2 (MCMC)" loading="lazy"><span class="name">Safeway 2 · MCMC</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-safeway_3"><img src="thumbs/fullcircle-mcmc-safeway_3.webp" alt="FullCircle Safeway 3 (MCMC)" loading="lazy"><span class="name">Safeway 3 · MCMC</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-street_1"><img src="thumbs/fullcircle-mcmc-street_1.webp" alt="FullCircle Street 1 (MCMC)" loading="lazy"><span class="name">Street 1 · MCMC</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-street_2"><img src="thumbs/fullcircle-mcmc-street_2.webp" alt="FullCircle Street 2 (MCMC)" loading="lazy"><span class="name">Street 2 · MCMC</span></a>
-      <a class="scene" href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-trees"><img src="thumbs/fullcircle-mcmc-trees.webp" alt="FullCircle Trees (MCMC)" loading="lazy"><span class="name">Trees · MCMC</span></a>
+    <h3>FullCircle scenes <small>23 static reconstructions from the <a href="https://theialab.github.io/fullcircle/">FullCircle</a> dataset</small></h3>
+    <div class="fc-card">
+      <div class="fc-cluster" style="aspect-ratio: 1 / 0.794">
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-lounge" title="Lounge · MCMC" style="left:25.78%;top:0.00%;width:25.90%"><img src="thumbs/fullcircle-mcmc-lounge.webp" alt="FullCircle Lounge (MCMC)" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-safeway_2" title="Safeway 2 · MCMC" style="left:14.38%;top:49.27%;width:25.90%"><img src="thumbs/fullcircle-mcmc-safeway_2.webp" alt="FullCircle Safeway 2 (MCMC)" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-street_2" title="Street 2 · MCMC" style="left:54.41%;top:40.14%;width:25.90%"><img src="thumbs/fullcircle-mcmc-street_2.webp" alt="FullCircle Street 2 (MCMC)" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-cs" title="CS · MCMC" style="left:52.85%;top:0.00%;width:18.14%"><img src="thumbs/fullcircle-mcmc-cs.webp" alt="FullCircle CS (MCMC)" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-lounge_2" title="Lounge 2 · MCMC" style="left:63.08%;top:77.17%;width:18.14%"><img src="thumbs/fullcircle-mcmc-lounge_2.webp" alt="FullCircle Lounge 2 (MCMC)" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-robot" title="Robot · MCMC" style="left:66.97%;top:17.29%;width:18.14%"><img src="thumbs/fullcircle-mcmc-robot.webp" alt="FullCircle Robot (MCMC)" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-safeway_1" title="Safeway 1 · MCMC" style="left:33.03%;top:77.17%;width:18.14%"><img src="thumbs/fullcircle-mcmc-safeway_1.webp" alt="FullCircle Safeway 1 (MCMC)" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-street_1" title="Street 1 · MCMC" style="left:81.86%;top:42.42%;width:18.14%"><img src="thumbs/fullcircle-mcmc-street_1.webp" alt="FullCircle Street 1 (MCMC)" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-trees" title="Trees · MCMC" style="left:36.66%;top:33.27%;width:18.14%"><img src="thumbs/fullcircle-mcmc-trees.webp" alt="FullCircle Trees (MCMC)" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-bedroom2" title="Bedroom 2" style="left:9.58%;top:35.89%;width:12.44%"><img src="thumbs/fullcircle-bedroom2.webp" alt="FullCircle Bedroom 2" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-bedroom3" title="Bedroom 3 · MCMC" style="left:23.18%;top:31.81%;width:12.44%"><img src="thumbs/fullcircle-mcmc-bedroom3.webp" alt="FullCircle Bedroom 3 (MCMC)" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-dark" title="Dark" style="left:1.29%;top:50.08%;width:12.44%"><img src="thumbs/fullcircle-dark.webp" alt="FullCircle Dark" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-flat1" title="Flat 1" style="left:13.60%;top:19.08%;width:12.44%"><img src="thumbs/fullcircle-flat1.webp" alt="FullCircle Flat 1" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-flat2" title="Flat 2" style="left:86.27%;top:24.96%;width:12.44%"><img src="thumbs/fullcircle-flat2.webp" alt="FullCircle Flat 2" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-kitchen" title="Kitchen" style="left:84.97%;top:7.34%;width:12.44%"><img src="thumbs/fullcircle-kitchen.webp" alt="FullCircle Kitchen" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-lab" title="Lab · MCMC" style="left:53.11%;top:24.47%;width:12.44%"><img src="thumbs/fullcircle-mcmc-lab.webp" alt="FullCircle Lab (MCMC)" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-oslo" title="Oslo" style="left:72.28%;top:0.00%;width:12.44%"><img src="thumbs/fullcircle-oslo.webp" alt="FullCircle Oslo" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-parking" title="Parking · MCMC" style="left:41.84%;top:57.91%;width:12.44%"><img src="thumbs/fullcircle-mcmc-parking.webp" alt="FullCircle Parking (MCMC)" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-persons" title="Persons" style="left:12.56%;top:1.46%;width:12.44%"><img src="thumbs/fullcircle-persons.webp" alt="FullCircle Persons" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-room1" title="Room 1 · MCMC" style="left:77.20%;top:65.09%;width:12.44%"><img src="thumbs/fullcircle-mcmc-room1.webp" alt="FullCircle Room 1 (MCMC)" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-distsort-room2" title="Room 2" style="left:50.90%;top:71.28%;width:12.44%"><img src="thumbs/fullcircle-room2.webp" alt="FullCircle Room 2" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-room3" title="Room 3 · MCMC" style="left:19.17%;top:83.69%;width:12.44%"><img src="thumbs/fullcircle-mcmc-room3.webp" alt="FullCircle Room 3 (MCMC)" loading="lazy"></a>
+        <a href="https://theialab.github.io/fullcircle/viewer/?scene=fullcircle-mcmc-safeway_3" title="Safeway 3 · MCMC" style="left:0.00%;top:23.16%;width:12.44%"><img src="thumbs/fullcircle-mcmc-safeway_3.webp" alt="FullCircle Safeway 3 (MCMC)" loading="lazy"></a>
+      </div>
+      <div class="fc-copy">
+        <p class="fc-title"><b>FullCircle</b> · 23 scenes</p>
+        <p>Casual 360° captures, in their own viewer on the FullCircle project page.</p>
+        <a class="fc-button" href="https://theialab.github.io/fullcircle/viewer/">Open the FullCircle viewer →</a>
+        <a class="fc-more" href="https://theialab.github.io/fullcircle/">About FullCircle</a>
+      </div>
     </div>
   </section>
 
