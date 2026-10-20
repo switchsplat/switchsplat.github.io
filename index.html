@@ -813,15 +813,30 @@
       el.innerHTML = el.dataset.combos.split(' ').map(c => '<div class="col">' +
         [...c].map(b => b === '1' ? (el.closest('.new') ? '<i class="u"></i>' : '<i class="f"></i>') : '<i></i>').join('') + '</div>').join('');
     }
+    // each video exists as <name>.mp4 (H.264), <name>.av1.mp4 and <name>.sd.mp4 (smaller H.264 for phones);
+    // AV1 only where it decodes smoothly (same rule as the tours), otherwise phones get the small file
+    const narrow = matchMedia('(max-width: 900px)').matches;
+    const tier = (async () => {
+      try {
+        const i = await navigator.mediaCapabilities.decodingInfo({ type: 'file', video: {
+          contentType: 'video/mp4; codecs="av01.0.08M.08"', width: 1920, height: 1080, bitrate: 2000000, framerate: 30 } });
+        if (i.supported && i.smooth && !(narrow && !i.powerEfficient)) return 'av1';
+      } catch (e) {}
+      return narrow ? 'sd' : '';
+    })();
+    const pick = async v => { const t = await tier; return t ? v.dataset.src.replace(/\.mp4$/, `.${t}.mp4`) : v.dataset.src; };
     // videos load and play only while on screen; play() is called explicitly for iOS
     const vids = document.querySelectorAll('video.ss-auto');
     const io = new IntersectionObserver(entries => {
       for (const e of entries) {
         const v = e.target;
         if (e.isIntersecting) {
-          if (!v.src) v.src = v.dataset.src;
+          if (!v.src && !v.dataset.loading) { v.dataset.loading = 1; pick(v).then(u => {
+            if (u !== v.dataset.src) v.addEventListener('error', () => { v.src = v.dataset.src; if (v.dataset.vis === '1') v.play().catch(() => {}); }, { once: true });
+            v.src = u; if (v.dataset.vis === '1') v.play().catch(() => {}); }); }
+          v.dataset.vis = '1';
           v.play().catch(() => {});
-        } else v.pause();
+        } else { v.dataset.vis = '0'; v.pause(); }
       }
     }, { threshold: 0.25 });
     vids.forEach(v => io.observe(v));
