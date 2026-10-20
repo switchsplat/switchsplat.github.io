@@ -1,4 +1,4 @@
-import{a as e,i as t,l as n,n as r,o as i,p as a,r as o,s,t as c}from"./index-tUS9F_DF.js";var l=a(),u=n(),d=`
+import{a as e,i as t,l as n,n as r,o as i,p as a,r as o,s,t as c}from"./index-BYTsXQqM.js";var l=a(),u=n(),d=`
 struct U { size: vec2f, time: f32, frame: f32 };
 @group(0) @binding(0) var<uniform> u: U;
 @vertex fn vs(@builtin(vertex_index) i: u32) -> @builtin(position) vec4f {
