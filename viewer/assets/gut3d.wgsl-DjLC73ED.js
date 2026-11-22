@@ -436,10 +436,12 @@ fn gutProjectParticle(cam: GutCamera, position: vec3f, scale: vec3f, quat: vec4f
     let sensorPos = gutWorldToSensor(cam, position);
     // Sort and cull by distance where the view reaches behind the camera
     // (panorama; the fisheye-panorama blend unless radialExtra.w is 0, which
-    // keeps the fisheye's centre depth during the cross-fade).
+    // keeps the fisheye's centre depth during the cross-fade; the lens when
+    // radialExtra.w is 2: the hemispheres under the extreme fisheye).
     let triangle = cam.cameraModel == GUT_MODEL_LENS_TRIANGLE;
     let wrap = cam.cameraModel == GUT_MODEL_EQUIRECT || cam.cameraModel == GUT_MODEL_FISHEYE_PANO || triangle;
     let panorama = cam.cameraModel == GUT_MODEL_EQUIRECT ||
+                   (cam.cameraModel == GUT_MODEL_LENS_BLEND && cam.radialExtra.w == 2.0) ||
                    ((cam.cameraModel == GUT_MODEL_FISHEYE_PANO || triangle) && cam.radialExtra.w != 0.0);
     // Sort key and near-plane test: centre depth along the axis (global_z_order,
     // the default) or distance from the camera (GUT_DISTANCE_SORT, i.e.
